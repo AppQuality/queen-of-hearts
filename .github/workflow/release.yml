@@ -1,0 +1,55 @@
+name: Release Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Bump version (minor)
+      run: |
+        # Estrai la versione corrente da plugin.json
+        VERSION=$(jq -r .version plugin.json)
+        # Separare la versione in major, minor, patch
+        IFS='.' read -r major minor patch <<< "$VERSION"
+        # Incrementare la versione minor
+        minor=$((minor + 1))
+        # Nuova versione
+        NEW_VERSION="$major.$minor.$patch"
+        echo "Bumping version to $NEW_VERSION"
+        
+        # Salva la nuova versione in plugin.json
+        jq --arg version "$NEW_VERSION" '.version = $version' plugin.json > plugin.json.tmp && mv plugin.json.tmp plugin.json
+
+    - name: Commit and push version update
+      run: |
+        # Configura git
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        
+        # Aggiungi le modifiche al file plugin.json
+        git add plugin.json
+        
+        # Commit delle modifiche
+        git commit -m "Bump version to $NEW_VERSION"
+        
+        # Push delle modifiche sul ramo master
+        git push origin master
+
+    - name: Create a zip of the repository
+      run: |
+        zip -r queen_of_hearts.zip .
+
+    - name: Create Release and Upload Asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: queen_of_hearts.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

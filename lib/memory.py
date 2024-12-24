@@ -7,6 +7,9 @@ class Memory:
             "reason": reason
         }
         self.memory["string_value"] = self.get_sentiment_string()
+    
+    def set_metadata(self, key, value):
+        self.memory[key] = value
         
         
     def get_sentiment_string(self):
@@ -33,6 +36,11 @@ class Memory:
             
         with open('sentiment_memory.txt', 'w') as file:
             file.write(new_memory + '\n')
-        self.ccat.rabbit_hole.ingest_file(self.ccat,'sentiment_memory.txt', metadata={"type": "sentiment_memory"})
+        metadata = {
+            "type": "sentiment_memory",
+        }
+        if ("default_memory_id" in self.memory):
+            metadata["default_memory_id"] = self.memory["default_memory_id"]
+        self.ccat.rabbit_hole.ingest_file(self.ccat,'sentiment_memory.txt', metadata=metadata)
         
         

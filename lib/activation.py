@@ -1,8 +1,5 @@
 from .memory import Memory
 from cat.looking_glass.cheshire_cat import CheshireCat
-from cat.db.crud import get_setting_by_name,upsert_setting_by_name
-from cat.db.models import Setting
-from .const import QUEEN_OF_HEARTS_INJESTION_SETTING
 
 ccat = CheshireCat()
 
@@ -73,28 +70,21 @@ default_memories = [
 
 def process(item):
     memory = Memory(ccat, item["value"], item["text"], item["reason"])
+    memory.set_metadata("default_memory_id", item["id"])
     memory.save()
 
-def get_injested_ids(key):
-    sett = get_setting_by_name(key)
-    if not sett is None:
-        return sett["value"]
-    return []
-
-def update_injested_ids(key, value):
-    upsert_setting_by_name(
-        Setting(
-            name=key,
-            value=value
-        )
-    )
+def get_injested_ids():
+    from .sentiment_memory import get_sentiment_memories
+    memories = get_sentiment_memories()
+    memories = [memory for memory in memories if "default_memory_id" in memory["metadata"]]
+    return [memory["metadata"]["default_memory_id"] for memory in memories]
 
 
 def activation(plugin):
     
-    setting_key=QUEEN_OF_HEARTS_INJESTION_SETTING
     
-    injested_ids = get_injested_ids(setting_key)
+    injested_ids = get_injested_ids()
+        
     
     valid_injested_ids = [id for id in injested_ids if any(item['id'] == id for item in default_memories)]
     
@@ -104,4 +94,3 @@ def activation(plugin):
             valid_injested_ids.append(item['id'])
 
     
-    update_injested_ids(setting_key, valid_injested_ids)

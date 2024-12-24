@@ -2,6 +2,7 @@ from .memory import Memory
 from cat.looking_glass.cheshire_cat import CheshireCat
 from cat.db.crud import get_setting_by_name,upsert_setting_by_name
 from cat.db.models import Setting
+from .const import QUEEN_OF_HEARTS_INJESTION_SETTING
 
 ccat = CheshireCat()
 
@@ -91,7 +92,7 @@ def update_injested_ids(key, value):
 
 def activation(plugin):
     
-    setting_key=plugin.id + "_injested"
+    setting_key=QUEEN_OF_HEARTS_INJESTION_SETTING
     
     injested_ids = get_injested_ids(setting_key)
     

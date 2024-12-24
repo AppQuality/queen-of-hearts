@@ -33,6 +33,6 @@ class Memory:
             
         with open('sentiment_memory.txt', 'w') as file:
             file.write(new_memory + '\n')
-        self.ccat.rabbit_hole.ingest_file(self.ccat,'sentiment_memory.txt')
+        self.ccat.rabbit_hole.ingest_file(self.ccat,'sentiment_memory.txt', metadata={"type": "sentiment_memory"})
         
         

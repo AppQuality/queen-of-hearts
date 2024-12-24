@@ -1,0 +1,10 @@
+{
+  "name": "Queen of Hearts",
+  "version": "0.0.1",
+  "description": "This plugin allow saving the sentiment in memory.",
+  "author_name": "AppQuality",
+  "author_url": "https://github.com/AppQuality",
+  "plugin_url": "https://github.com/AppQuality",
+  "tags": "prompt, memory, settings, advanced",
+  "thumb": "https://raw.githubusercontent.com/AppQuality/queen-of-hearts/master/logo.jpg"
+}

@@ -1,8 +1,7 @@
-import os
-import json
 from .memory import Memory
 from cat.looking_glass.cheshire_cat import CheshireCat
-
+from cat.db.crud import get_setting_by_name,upsert_setting_by_name
+from cat.db.models import Setting
 
 ccat = CheshireCat()
 
@@ -71,38 +70,37 @@ default_memories = [
     }
 ]
 
-def load_injested_ids(file_path):
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    return []
-
-def save_injested_ids(file_path, ids):
-    with open(file_path, 'w') as f:
-        json.dump(ids, f, indent=4)
-
 def process(item):
     memory = Memory(ccat, item["value"], item["text"], item["reason"])
     memory.save()
 
+def get_injested_ids(key):
+    sett = get_setting_by_name(key)
+    if not sett is None:
+        return sett["value"]
+    return []
+
+def update_injested_ids(key, value):
+    upsert_setting_by_name(
+        Setting(
+            name=key,
+            value=value
+        )
+    )
 
 
 def activation(plugin):
     
-    # Percorso del file __injested.json
-    injested_file = os.path.join(plugin.path, '__injested.json')
+    setting_key=plugin.id + "_injested"
     
-    # Carica gli ID già ingeriti dal file, se esiste
-    injested_ids = load_injested_ids(injested_file)
+    injested_ids = get_injested_ids(setting_key)
     
-    # Filtra gli ID che non sono nel dizionario
     valid_injested_ids = [id for id in injested_ids if any(item['id'] == id for item in default_memories)]
     
-    # Per ogni memoria, se l'id non è stato ancora ingested, processa l'elemento e aggiungi l'id
     for item in default_memories:
         if item['id'] not in valid_injested_ids:
             process(item)
             valid_injested_ids.append(item['id'])
 
-    # Salva la lista aggiornata degli ID nel file
-    save_injested_ids(injested_file, valid_injested_ids)
+    
+    update_injested_ids(setting_key, valid_injested_ids)

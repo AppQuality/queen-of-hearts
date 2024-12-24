@@ -43,6 +43,14 @@ jobs:
         # Push delle modifiche sul ramo master
         git push origin master
 
+    - name: Create tag for new version
+      run: |
+        # Crea un tag con la nuova versione
+        git tag "v$NEW_VERSION"
+        
+        # Push del tag su GitHub
+        git push origin "v$NEW_VERSION"
+        
     - name: Create a zip of the repository
       run: |
         zip -r queen_of_hearts.zip .

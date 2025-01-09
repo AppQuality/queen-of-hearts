@@ -81,9 +81,10 @@ def get_injested_ids():
 
 
 def activation(plugin):
-    print("\033[95m" + "Queen of Hearts plugin activated" + "\033[0m")
+    
     
     injested_ids = get_injested_ids()
+        
     
     valid_injested_ids = [id for id in injested_ids if any(item['id'] == id for item in default_memories)]
     
